@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:power_vpn/constants/serverprovider.dart';
 import 'package:power_vpn/screens/vpn_bottom_panel1.dart';
+import 'package:provider/provider.dart';
 
 class VpnRegions extends StatefulWidget {
   const VpnRegions({super.key});
@@ -14,8 +16,12 @@ class _VpnRegionsState extends State<VpnRegions> {
 
   @override
   Widget build(BuildContext context) {
+    final serverProvider = Provider.of<ServerProvider>(context);
+    final selectedServer = serverProvider.selectedServer; // ✅ سرور انتخاب‌شده
+
     return GestureDetector(
       onTap: () {
+        // دسترسی به متد showServerList از طریق GlobalKey
         vpnPanelKey.currentState?.showServerList(context);
       },
       child: Opacity(
@@ -45,15 +51,17 @@ class _VpnRegionsState extends State<VpnRegions> {
                         height: 50,
                         fit: BoxFit.cover,
                       ),
-                      const Text(
-                        'هنوز سروری انتخاب نکردید',
-                        style: TextStyle(
+                      Text(
+                        selectedServer?["name"] ??
+                            'هنوز سروری انتخاب نکردید', // ✅ اصلاح مقداردهی
+                        style: const TextStyle(
                           fontFamily: 'Vazirmatn',
                           fontWeight: FontWeight.w300,
                           color: Colors.white,
                         ),
                       ),
-                      VpnBottomPanel1(key: vpnPanelKey),
+                      VpnBottomPanel1(
+                          key: vpnPanelKey), // ✅ اطمینان از مقداردهی کلید
                     ],
                   ),
                 ],

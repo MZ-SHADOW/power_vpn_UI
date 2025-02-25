@@ -1,13 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:power_vpn/constants/serverprovider.dart';
+import 'package:provider/provider.dart';
 
-class LeftPanel extends StatelessWidget {
+class LeftPanel extends StatefulWidget {
   const LeftPanel({super.key});
+
+  @override
+  State<LeftPanel> createState() => _LeftPanelState();
+}
+
+class _LeftPanelState extends State<LeftPanel> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration.zero, () {
+      Provider.of<ServerProvider>(context, listen: false).fetchUserData();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topRight: Radius.circular(0),
           bottomRight: Radius.circular(0),
@@ -16,9 +30,7 @@ class LeftPanel extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFF2F2535),
-            ),
+            decoration: BoxDecoration(color: const Color(0xFF2F2535)),
             child: Padding(
               padding: const EdgeInsets.only(
                 left: 10,
@@ -28,18 +40,17 @@ class LeftPanel extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      CircleAvatar(
-                        radius: 35,
-                        backgroundImage: AssetImage('assets/images/image2.png'),
-                      ),
-                    ],
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: const CircleAvatar(
+                      radius: 35,
+                      backgroundImage: AssetImage('assets/images/image2.png'),
+                    ),
                   ),
+                  const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
+                    children: const [
                       Text(
                         ': نام کاربری',
                         style: TextStyle(
@@ -51,29 +62,36 @@ class LeftPanel extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 5),
-                  Text(
-                    'GGCGUfxdulhfuildhafludsada2645dasighja',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontFamily: 'IstokWeb',
-                      fontWeight: FontWeight.w300,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        '12454862',
-                        style: TextStyle(
+                  const SizedBox(height: 5),
+
+                  Consumer<ServerProvider>(
+                    builder: (context, serverProvider, child) {
+                      if (serverProvider.userData == null) {
+                        return const CircularProgressIndicator(); 
+                      }
+
+                      String username =
+                          serverProvider
+                              .userData?['active_account_app']?['customer']?['username'] ??
+                          'نام کاربری یافت نشد';
+
+                      return Text(
+                        username,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontFamily: 'IstokWeb',
                           fontWeight: FontWeight.w300,
                         ),
-                      ),
-                      Text(
+                        textAlign: TextAlign.center,
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      const Text(
                         ' : روز های باقی مانده',
                         style: TextStyle(
                           color: Colors.white,
@@ -83,7 +101,49 @@ class LeftPanel extends StatelessWidget {
                         ),
                         textAlign: TextAlign.end,
                       ),
-                      SizedBox(height: 50),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Consumer<ServerProvider>(
+                        builder: (context, serverProvider, child) {
+                          if (serverProvider.userData == null) {
+                            return const Text(
+                              'اطلاعات کاربر یافت نشد',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'IstokWeb',
+                                fontWeight: FontWeight.w300,
+                              ),
+                            );
+                          }
+
+                          var remainingDays =
+                              serverProvider.userData?['time_remain'];
+
+                          if (remainingDays == null) {
+                            return const Text(
+                              'منتظر بمانید',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'IstokWeb',
+                                fontWeight: FontWeight.w300,
+                              ),
+                            );
+                          }
+
+                          return Text(
+                            '$remainingDays روز',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontFamily: 'IstokWeb',
+                              fontWeight: FontWeight.w300,
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 50),
                     ],
                   ),
                 ],
